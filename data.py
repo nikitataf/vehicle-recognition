@@ -1,8 +1,8 @@
 import glob
 import os
-import cv2
 import numpy as np
 from skimage import img_as_ubyte
+from skimage.io import imread, imsave
 from skimage.transform import resize
 
 
@@ -29,7 +29,7 @@ def load_data(folder):
         for name in files:
 
             # Load image and parse class name
-            img = cv2.imread(name)
+            img = imread(name)
             class_name = name.split(os.sep)[-2]
 
             # Convert class names to integer indices:
@@ -55,9 +55,9 @@ def resize_test_data():
     os.mkdir(new_path)
     i = 0
     for file in sorted(os.listdir(root)):
-        img = cv2.imread(root + file)
+        img = imread(root + file)
         res = resize(img, (200, 200))
-        cv2.imwrite(new_path + os.sep + file, img_as_ubyte(res))
+        imsave(new_path + os.sep + file, img_as_ubyte(res))
         i = i + 1
         print(str(i) + ' images out of ' + str(len(os.listdir(root))) + ' processed')
 
@@ -73,9 +73,9 @@ def resize_train_data():
     for category in sorted(os.listdir(root)):
         os.mkdir(new_path + category)
         for file in sorted(os.listdir(os.path.join(root, category))):
-            img = cv2.imread(root + category + os.sep + file)
+            img = imread(root + category + os.sep + file)
             res = resize(img, (200, 200))
-            cv2.imwrite(new_path + os.sep + category + os.sep + file, img_as_ubyte(res))
+            imsave(new_path + os.sep + category + os.sep + file, img_as_ubyte(res))
             i = i + 1
             print(str(i) + ' images processed')
 
@@ -94,5 +94,5 @@ if __name__ == "__main__":
     # res = cv2.resize(img, dsize=(200, 200), interpolation=cv2.INTER_CUBIC)
     # imageio.imwrite('1.jpg', img_as_ubyte(res))
 
-    # resize_test_data()
+    resize_test_data()
     resize_train_data()

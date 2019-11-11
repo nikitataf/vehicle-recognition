@@ -6,6 +6,7 @@ from keras.layers import Conv2D, MaxPooling2D, concatenate, Input, Activation, F
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 import matplotlib.pyplot as plt
 from keras import regularizers
+from keras.applications.resnet50 import ResNet50
 
 
 def plot_accuracy(history):
@@ -47,7 +48,7 @@ def model_1():
 
 
 # Model 2
-def model_2():
+def model_2(input_shape, weight_decay):
 
     model = Sequential()
 
@@ -77,6 +78,13 @@ def model_2():
     return model
 
 
+def model_3(num_classes):
+    model = ResNet50(include_top=True, weights=None, input_tensor=None,
+                     input_shape=(200, 200, 3), pooling=None, classes=num_classes)
+
+    return model
+
+
 def train(X, y, params):
     # One-Hot encoding
     y = np.array(to_categorical(y, params.num_classes))
@@ -87,6 +95,8 @@ def train(X, y, params):
     input_shape = (200, 200, 3)
 
     model = model_1()
+    # model = model_2(input_shape, params.weight_decay)
+    # model_3(params.num_classes)
     model.compile(optimizer="Adam", loss="categorical_crossentropy", metrics=['accuracy'])
 
     earlyStopping = EarlyStopping(monitor='val_loss', patience=300, verbose=0)
