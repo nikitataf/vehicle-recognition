@@ -1,9 +1,14 @@
 import glob
 import os
 import numpy as np
-from skimage import img_as_ubyte
+import matplotlib.pyplot as plt
+
+from skimage import img_as_ubyte, img_as_float
 from skimage.io import imread, imsave
 from skimage.transform import resize
+
+import tensorflow as tf
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 def load_data(folder):
@@ -57,7 +62,7 @@ def resize_test_data():
     for file in sorted(os.listdir(root)):
         img = imread(root + file)
         res = resize(img, (200, 200))
-        imsave(new_path + os.sep + file, img_as_ubyte(res))
+        imsave(new_path + os.sep + file, img_as_float(res))
         i = i + 1
         print(str(i) + ' images out of ' + str(len(os.listdir(root))) + ' processed')
 
@@ -75,24 +80,35 @@ def resize_train_data():
         for file in sorted(os.listdir(os.path.join(root, category))):
             img = imread(root + category + os.sep + file)
             res = resize(img, (200, 200))
-            imsave(new_path + os.sep + category + os.sep + file, img_as_ubyte(res))
+            imsave(new_path + os.sep + category + os.sep + file, img_as_float(res))
             i = i + 1
             print(str(i) + ' images processed')
 
     print('Successfully resized')
 
 
+def image_flow(args):
+    data_generator = ImageDataGenerator(rescale=1. / 255,
+                                        validation_split=0.33)  # Data Generator for our validation data
+    test_generator = ImageDataGenerator(rescale=1. / 255)  # Generator for the test data
+
+    train_generator = data_generator.flow_from_directory(args.train, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH), shuffle=True,
+                                                         seed=13,
+                                                         class_mode='categorical', batch_size=args.batch_size,
+                                                         subset="training")
+
+    validation_generator = data_generator.flow_from_directory(args.train, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH),
+                                                              shuffle=True, seed=13,
+                                                              class_mode='categorical', batch_size=args.batch_size,
+                                                              subset="validation")
+
+    test_generator = test_generator.flow_from_directory(args.test, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH), shuffle=False,
+                                                        batch_size=1)
+
+    return train_generator, validation_generator, test_generator
+
+
 if __name__ == "__main__":
 
-    # Rescale. One way
-    # INTER_NEAREST - a nearest-neighbor interpolation
-    # INTER_LINEAR - a bilinear interpolation (used by default)
-    # INTER_AREA - resampling using pixel area relation. It may be a preferred method for image decimation, as it gives moire’-free results. But when the image is zoomed, it is similar to the INTER_NEAREST method.
-    # INTER_CUBIC - a bicubic interpolation over 4x4 pixel neighborhood
-    # INTER_LANCZOS4 - a Lanczos interpolation over 8x8 pixel neighborhood
-    # img = cv2.imread('000009.jpg')
-    # res = cv2.resize(img, dsize=(200, 200), interpolation=cv2.INTER_CUBIC)
-    # imageio.imwrite('1.jpg', img_as_ubyte(res))
-
-    resize_test_data()
+    # resize_test_data()
     resize_train_data()

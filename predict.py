@@ -1,4 +1,4 @@
-from keras.models import Sequential, load_model, Model
+import tensorflow as tf
 from sklearn.preprocessing import LabelEncoder
 import glob
 import numpy as np
@@ -26,16 +26,20 @@ def load_test_data(folder):
     return X
 
 
-def predict(folder, classes):
-    # Load pictures into numpy array
-    X = load_test_data(folder)
-    print("X shape: " + str(X.shape))
-    print("Classes shape: " + str(classes.shape))
+def predict(test_generator, CLASS_NAMES):
 
-    best_model = load_model('best_model.hdf5')
-    predictions = best_model.predict_classes(X)
-    le = LabelEncoder().fit(classes)
-    labels = list(le.inverse_transform(predictions))
+    filenames = test_generator.filenames
+    nb_samples = len(filenames)
+
+    best_model = tf.keras.models.load_model('best_model.hdf5')
+    predictions = best_model.predict_generator(test_generator, steps=nb_samples)
+    y_classes = predictions.argmax(axis=-1)
+    le = LabelEncoder().fit(CLASS_NAMES)
+    labels = list(le.inverse_transform(y_classes))
+
+    print(predictions)
+    print(y_classes)
+    print(labels)
 
     new_submission_path = "submission" + ".csv"
 
@@ -47,4 +51,5 @@ def predict(folder, classes):
 
 
 if __name__ == "__main__":
+
     print('Predictions')
