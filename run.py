@@ -61,7 +61,7 @@ def model_2(args):
         MaxPooling2D(),
         Flatten(),
         Dense(512, activation='relu'),
-        Dense(args.num_classes, activation='sigmoid')
+        Dense(args.num_classes, activation='softmax')
     ])
     return model
 
@@ -105,9 +105,7 @@ def train(args, train_generator, validation_generator):
 
     model = model_2(args)
 
-    model.compile(optimizer='adam',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
     model.summary()
 

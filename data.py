@@ -88,11 +88,14 @@ def resize_train_data():
 
 
 def image_flow(args):
-    data_generator = ImageDataGenerator(rescale=1. / 255,
-                                        validation_split=0.33)  # Data Generator for our validation data
-    test_generator = ImageDataGenerator(rescale=1. / 255)  # Generator for the test data
 
-    train_generator = data_generator.flow_from_directory(args.train, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH), shuffle=True,
+    # Data Generator for the train data
+    data_generator = ImageDataGenerator(rescale=1. / 255, validation_split=0.33)
+    # Generator for the test data
+    test_generator = ImageDataGenerator(rescale=1. / 255)
+
+    train_generator = data_generator.flow_from_directory(args.train, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH),
+                                                         shuffle=True,
                                                          seed=13,
                                                          class_mode='categorical', batch_size=args.batch_size,
                                                          subset="training")
@@ -102,7 +105,8 @@ def image_flow(args):
                                                               class_mode='categorical', batch_size=args.batch_size,
                                                               subset="validation")
 
-    test_generator = test_generator.flow_from_directory(args.test, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH), shuffle=False,
+    test_generator = test_generator.flow_from_directory(args.test, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH),
+                                                        shuffle=False,
                                                         batch_size=1)
 
     return train_generator, validation_generator, test_generator

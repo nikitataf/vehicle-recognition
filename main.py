@@ -21,10 +21,11 @@ import os
 import pathlib
 import numpy as np
 
-os.environ['KMP_DUPLICATE_LIB_OK']='True' # MacOS specifics -__-
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
 
 
 if __name__ == "__main__":
+
     # Parameters
     parser = argparse.ArgumentParser(description='Simulation options')
     parser.add_argument('--train', default='./train/qwe/', type=str, help='Directory of train data')
@@ -36,9 +37,6 @@ if __name__ == "__main__":
     parser.add_argument('--epochs', default='2', type=int, help='Epochs')
     parser.add_argument('--num_classes', default='2', type=int, help='Number of classes')
     args = parser.parse_args()
-
-    # Load pictures into numpy arrays
-    # X, y, classes = load_data(args.train)
 
     # Load classes names
     data_dir = pathlib.Path(args.train)

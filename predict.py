@@ -26,7 +26,7 @@ def load_test_data(folder):
     return X
 
 
-def predict(test_generator, CLASS_NAMES):
+def predict(test_generator, class_names):
 
     filenames = test_generator.filenames
     nb_samples = len(filenames)
@@ -34,7 +34,7 @@ def predict(test_generator, CLASS_NAMES):
     best_model = tf.keras.models.load_model('best_model.hdf5')
     predictions = best_model.predict_generator(test_generator, steps=nb_samples)
     y_classes = predictions.argmax(axis=-1)
-    le = LabelEncoder().fit(CLASS_NAMES)
+    le = LabelEncoder().fit(class_names)
     labels = list(le.inverse_transform(y_classes))
 
     print(predictions)
