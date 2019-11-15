@@ -90,7 +90,9 @@ def resize_train_data():
 def image_flow(args):
 
     # Data Generator for the train data
-    data_generator = ImageDataGenerator(rescale=1. / 255, validation_split=0.33)
+    data_generator = ImageDataGenerator(rescale=1. / 255, validation_split=0.2, rotation_range=45,
+                                        width_shift_range=.15, height_shift_range=.15, horizontal_flip=True,
+                                        zoom_range=0.5)
     # Generator for the test data
     test_generator = ImageDataGenerator(rescale=1. / 255)
 

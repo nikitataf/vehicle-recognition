@@ -28,14 +28,14 @@ if __name__ == "__main__":
 
     # Parameters
     parser = argparse.ArgumentParser(description='Simulation options')
-    parser.add_argument('--train', default='./train/qwe/', type=str, help='Directory of train data')
-    parser.add_argument('--test', default='./testtest/', type=str, help='Directory of test data')
+    parser.add_argument('--num_classes', default='17', type=int, help='Number of classes')
+    parser.add_argument('--train', default='./train/train/', type=str, help='Directory of train data')
+    parser.add_argument('--test', default='./test/', type=str, help='Directory of test data')
     parser.add_argument('--IMG_HEIGHT', default='224', type=int, help='Image height')
     parser.add_argument('--IMG_WIDTH', default='224', type=int, help='Image width')
     parser.add_argument('--weight_decay', default='1e-4', type=float, help='Weight decay')
     parser.add_argument('--batch_size', default='20', type=int, help='Batch size')
-    parser.add_argument('--epochs', default='2', type=int, help='Epochs')
-    parser.add_argument('--num_classes', default='2', type=int, help='Number of classes')
+    parser.add_argument('--epochs', default='10', type=int, help='Epochs')
     args = parser.parse_args()
 
     # Load classes names
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     train_generator, validation_generator, test_generator = image_flow(args)
 
     # Train model
-    train(args, train_generator, validation_generator)
+    #train(args, train_generator, validation_generator)
 
     # Predict values
     predict(test_generator, CLASS_NAMES)
