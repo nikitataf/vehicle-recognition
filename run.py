@@ -53,10 +53,14 @@ def model_1(args):
     return model
 
 
-def model_3(num_classes):
-    #TODO Need to figure out how to use it
-    model = tf.keras.applications.resnet50.ResNet50(include_top=True, weights=None, input_tensor=None,
-                     input_shape=(200, 200, 3), pooling=None, classes=num_classes)
+def model_3(args):
+    base_model = tf.keras.applications.resnet50.ResNet50(include_top=False, weights='imagenet', input_tensor=None,
+                                                    pooling='max', classes=args.num_classes)
+
+    model = Sequential()
+    model.add(base_model)
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
 
@@ -64,7 +68,7 @@ def model_3(num_classes):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_1(args)
+    model = model_3(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])

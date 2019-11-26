@@ -21,7 +21,7 @@ import os
 import pathlib
 import numpy as np
 
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
+# os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
 
 
 if __name__ == "__main__":
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     train_generator, validation_generator, test_generator = image_flow(args)
 
     # Train model
-    #train(args, train_generator, validation_generator)
+    train(args, train_generator, validation_generator)
 
     # Predict values
     predict(test_generator, CLASS_NAMES)
