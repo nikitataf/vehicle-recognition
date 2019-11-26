@@ -27,7 +27,7 @@ import numpy as np
 if __name__ == "__main__":
 
     # Parameters
-    parser = argparse.ArgumentParser(description='Simulation options')
+    parser = argparse.ArgumentParser(description='Vehicle Recognition Competition')
     parser.add_argument('--num_classes', default='17', type=int, help='Number of classes')
     parser.add_argument('--train', default='./train/train/', type=str, help='Directory of train data')
     parser.add_argument('--test', default='./test/', type=str, help='Directory of test data')

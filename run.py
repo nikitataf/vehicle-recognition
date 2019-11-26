@@ -35,7 +35,7 @@ def plot_accuracy(args, history):
     plt.show()
 
 
-def model_1(args):
+def model_simple(args):
     model = Sequential([
         Conv2D(16, 3, padding='same', activation='relu',
                input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3)),
@@ -53,9 +53,30 @@ def model_1(args):
     return model
 
 
-def model_3(args):
-    base_model = tf.keras.applications.resnet50.ResNet50(include_top=False, weights='imagenet', input_tensor=None,
-                                                    pooling='max', classes=args.num_classes)
+def model_ResNet(args):
+    base_model = tf.keras.applications.resnet50.ResNet50(include_top=False, weights='imagenet', pooling='max')
+
+    model = Sequential()
+    model.add(base_model)
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(args.num_classes, activation='softmax'))
+
+    return model
+
+
+def model_MobileNet(args):
+    base_model = tf.keras.applications.mobilenet.MobileNet(include_top=False, weights='imagenet', pooling='max')
+
+    model = Sequential()
+    model.add(base_model)
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(args.num_classes, activation='softmax'))
+
+    return model
+
+
+def model_NASNet(args):
+    base_model = tf.keras.applications.nasnet.NASNetMobile(include_top=False, weights='imagenet', pooling='max')
 
     model = Sequential()
     model.add(base_model)
@@ -68,14 +89,14 @@ def model_3(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_3(args)
+    model = model_NASNet(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
 
-    # Stop training when a monitored quntity has stopped improving
-    earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=300, verbose=0)
+    # Stop training when a monitored quantity has stopped improving
+    earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0)
     # Save the best model
     best_model = tf.keras.callbacks.ModelCheckpoint('best_model.hdf5', save_best_only=True, monitor='val_loss')
 
