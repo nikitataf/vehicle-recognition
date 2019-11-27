@@ -1,55 +1,42 @@
-import tensorflow as tf
-from sklearn.preprocessing import LabelEncoder
-import glob
-import numpy as np
-import os
-import matplotlib.pyplot as plt
+"""
+TAU Vehicle Type Recognition Competition. Classification
+of images of different vehicle types, including cars,
+bicycles, vans, ambulances, etc. (total 17 categories).
+Prediction script contains most of the initialization and prediction.
+"""
+
+__author__ = "Nikita Tafintsev"
+__copyright__ = "Copyright 2019"
+__license__ = "All rights reserved"
+__maintainer__ = "Nikita Tafintsev"
+__email__ = "nikita@tafintsev.tech"
+__status__ = "Beta test"
 
 
-def load_test_data(folder):
-    """
-    Load all test images from 'folder'.
-    """
-    X = []  # Images go here
-
-    # Find all test files from this folder
-    files = glob.glob(folder + os.sep + "*.jpg")
-    # Load all files
-    for name in files:
-        # Load image
-        img = plt.imread(name)
-        X.append(img)
-
-    # Convert python list to contiguous numpy array
-    X = np.array(X)
-
-    return X
+import argparse
+from postprocessing import generate_submit
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
-def predict(test_generator, class_names):
+def main():
+    # Parameters
+    parser = argparse.ArgumentParser(description='Vehicle Recognition Competition')
+    parser.add_argument('--test', default='./test/', type=str, help='Directory of test data')
+    parser.add_argument('--IMG_HEIGHT', default='224', type=int, help='Image height')
+    parser.add_argument('--IMG_WIDTH', default='224', type=int, help='Image width')
+    parser.add_argument('--batch_size', default='1', type=int, help='Batch size')
 
-    filenames = test_generator.filenames
-    nb_samples = len(filenames)
+    args = parser.parse_args()
 
-    best_model = tf.keras.models.load_model('best_model.hdf5')
-    predictions = best_model.predict_generator(test_generator, steps=nb_samples)
-    y_classes = predictions.argmax(axis=-1)
-    le = LabelEncoder().fit(class_names)
-    labels = list(le.inverse_transform(y_classes))
+    # Generator for the test data
+    test_generator = ImageDataGenerator(rescale=1. / 255)
+    test_generator = test_generator.flow_from_directory(args.test, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH),
+                                                        shuffle=False, batch_size=args.batch_size)
 
-    print(predictions)
-    print(y_classes)
-    print(labels)
-
-    new_submission_path = "submission" + ".csv"
-
-    with open(new_submission_path, "w") as fp:
-        fp.write("Id,Category\n")
-        for i, label in enumerate(labels):
-            fp.write("%d,%s\n" % (i, label))
-    print("Submission made!")
+    # Predict values
+    generate_submit(test_generator)
 
 
 if __name__ == "__main__":
+    main()
 
-    print('Predictions')

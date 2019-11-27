@@ -2,7 +2,7 @@
 TAU Vehicle Type Recognition Competition. Classification
 of images of different vehicle types, including cars,
 bicycles, vans, ambulances, etc. (total 17 categories).
-Main startup script contains most of the initialization.
+Train script contains most of the initialization and training.
 """
 
 __author__ = "Nikita Tafintsev"
@@ -14,12 +14,9 @@ __status__ = "Beta test"
 
 
 import argparse
-from data import load_data, image_flow
-from run import train
-from predict import predict
+from dataset import VehicleDataset
+from model import train
 import os
-import pathlib
-import numpy as np
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
 
@@ -38,18 +35,11 @@ def main():
 
     args = parser.parse_args()
 
-    # Load classes names
-    data_dir = pathlib.Path(args.train)
-    CLASS_NAMES = np.array([item.name for item in data_dir.glob('*') if item.name != "LICENSE.txt"])
-
     # Load image generators
-    train_generator, validation_generator, test_generator = image_flow(args)
+    train_dataset = VehicleDataset(args)
 
     # Train model
-    train(args, train_generator, validation_generator)
-
-    # Predict values
-    predict(test_generator, CLASS_NAMES)
+    train(args, train_dataset.train_generator, train_dataset.validation_generator)
 
 
 if __name__ == "__main__":
