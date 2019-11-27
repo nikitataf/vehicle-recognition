@@ -12,10 +12,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 class VehicleDataset():
     def __init__(self, args):
         # Data Generator for the train data
-        # data_generator = ImageDataGenerator(rescale=1. / 255, validation_split=0.2, rotation_range=45,
-        #                                     width_shift_range=.15, height_shift_range=.15, horizontal_flip=True,
-        #                                     zoom_range=0.5)
-        data_generator = ImageDataGenerator(rescale=1. / 255, validation_split=0.2)
+        data_generator = ImageDataGenerator(rescale=1. / 255, validation_split=0.2, rotation_range=45,
+                                            width_shift_range=.15, height_shift_range=.15, horizontal_flip=True,
+                                            zoom_range=0.5)
 
         self.train_generator = data_generator.flow_from_directory(args.train, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH),
                                                              shuffle=True,

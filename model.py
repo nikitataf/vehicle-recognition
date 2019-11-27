@@ -78,11 +78,13 @@ def model_MobileNet(args):
 
 
 def model_NASNet(args):
-    base_model = tf.keras.applications.nasnet.NASNetMobile(include_top=False, weights='imagenet', pooling='max')
+    base_model = tf.keras.applications.nasnet.NASNetLarge(include_top=False,
+                                                          input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3),
+                                                          weights='imagenet', pooling='max')
 
     model = Sequential()
     model.add(base_model)
-    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(127, activation='relu'))
     model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
@@ -91,7 +93,7 @@ def model_NASNet(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_simple(args)
+    model = model_NASNet(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
