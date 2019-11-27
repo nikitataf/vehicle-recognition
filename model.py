@@ -106,8 +106,6 @@ def train(args, train_generator, validation_generator):
     file_path = 'weights/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
     model_weights = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, save_weights_only=True,
                                                        monitor='loss', mode='auto', period=1, verbose=0)
-    # TensorBoard basic visualizations
-    tensor_board = tf.keras.callbacks.TensorBoard(log_dir='logs/', histogram_freq=0, batch_size=args.batch_size)
 
     # Train model
     history = model.fit_generator(
@@ -116,7 +114,7 @@ def train(args, train_generator, validation_generator):
         epochs=args.epochs,
         validation_data=validation_generator,
         validation_steps=5602 // args.batch_size,
-        callbacks=[earlyStopping, best_model, model_weights, tensor_board]
+        callbacks=[earlyStopping, best_model, model_weights]
     )
 
     weight_files = glob.glob(os.path.join(os.getcwd(), 'weights/*'))
