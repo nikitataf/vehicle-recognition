@@ -7,6 +7,8 @@ import numpy as np
 import tensorflow as tf
 
 
+# Might help: find . -name '.DS_Store' -type f -delete
+
 data_dir = './train/train/'
 data = []
 
@@ -34,7 +36,7 @@ plt.title('Class counts')
 data_dir = pathlib.Path(data_dir)
 image_count = len(list(data_dir.glob('*/*.jpg')))
 
-CLASS_NAMES = np.array([item.name for item in data_dir.glob('*') if item.name != "LICENSE.txt"])
+CLASS_NAMES = np.array([item.name for item in data_dir.glob('*') if item.name != ".DS_Store"])
 
 image_generator = tf.keras.preprocessing.image.ImageDataGenerator(rescale=1. / 255)
 BATCH_SIZE = 32
