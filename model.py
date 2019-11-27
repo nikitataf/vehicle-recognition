@@ -2,7 +2,7 @@ import numpy as np
 import glob
 import os
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
+from sklearn.utils import class_weight
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
@@ -93,11 +93,15 @@ def model_NASNet(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_NASNet(args)
+    model = model_simple(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()
+
+    # Class weights
+    class_weights = class_weight.compute_class_weight('balanced', np.unique(train_generator.classes),
+                                                      train_generator.classes)
 
     # Stop training when a monitored quantity has stopped improving
     earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0)
@@ -107,7 +111,7 @@ def train(args, train_generator, validation_generator):
     # Save the weights
     file_path = 'weights/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
     model_weights = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, save_weights_only=True,
-                                                       monitor='loss', mode='auto', period=1, verbose=0)
+                                                       monitor='loss', mode='auto', save_freq=1, verbose=0)
 
     # Train model
     history = model.fit_generator(
@@ -116,6 +120,7 @@ def train(args, train_generator, validation_generator):
         epochs=args.epochs,
         validation_data=validation_generator,
         validation_steps=5602 // args.batch_size,
+        class_weight=class_weights,
         callbacks=[earlyStopping, best_model, model_weights]
     )
 
