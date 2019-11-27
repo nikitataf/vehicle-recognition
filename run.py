@@ -1,4 +1,6 @@
 import numpy as np
+import glob
+import os
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
@@ -89,7 +91,7 @@ def model_NASNet(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_NASNet(args)
+    model = model_simple(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -98,7 +100,14 @@ def train(args, train_generator, validation_generator):
     # Stop training when a monitored quantity has stopped improving
     earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0)
     # Save the best model
-    best_model = tf.keras.callbacks.ModelCheckpoint('best_model.hdf5', save_best_only=True, monitor='val_loss')
+    file_path = 'model/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    best_model = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, monitor='val_loss')
+    # Save the weights
+    file_path = 'weights/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    model_weights = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, save_weights_only=True,
+                                                       monitor='loss', mode='auto', period=1, verbose=0)
+    # TensorBoard basic visualizations
+    tensor_board = tf.keras.callbacks.TensorBoard(log_dir='logs/', histogram_freq=0, batch_size=args.batch_size)
 
     # Train model
     history = model.fit_generator(
@@ -107,7 +116,10 @@ def train(args, train_generator, validation_generator):
         epochs=args.epochs,
         validation_data=validation_generator,
         validation_steps=5602 // args.batch_size,
-        callbacks=[earlyStopping, best_model]
+        callbacks=[earlyStopping, best_model, model_weights, tensor_board]
     )
+
+    weight_files = glob.glob(os.path.join(os.getcwd(), 'weights/*'))
+    weight_file = max(weight_files, key=os.path.getctime)  # most recent file
 
     # plot_accuracy(args, history)

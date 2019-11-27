@@ -21,11 +21,10 @@ import os
 import pathlib
 import numpy as np
 
-# os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
 
 
-if __name__ == "__main__":
-
+def main():
     # Parameters
     parser = argparse.ArgumentParser(description='Vehicle Recognition Competition')
     parser.add_argument('--num_classes', default='17', type=int, help='Number of classes')
@@ -33,9 +32,10 @@ if __name__ == "__main__":
     parser.add_argument('--test', default='./test/', type=str, help='Directory of test data')
     parser.add_argument('--IMG_HEIGHT', default='224', type=int, help='Image height')
     parser.add_argument('--IMG_WIDTH', default='224', type=int, help='Image width')
-    parser.add_argument('--weight_decay', default='1e-4', type=float, help='Weight decay')
     parser.add_argument('--batch_size', default='20', type=int, help='Batch size')
     parser.add_argument('--epochs', default='10', type=int, help='Epochs')
+    parser.add_argument('--weight_decay', default='1e-4', type=float, help='Weight decay')
+
     args = parser.parse_args()
 
     # Load classes names
@@ -50,3 +50,7 @@ if __name__ == "__main__":
 
     # Predict values
     predict(test_generator, CLASS_NAMES)
+
+
+if __name__ == "__main__":
+    main()
