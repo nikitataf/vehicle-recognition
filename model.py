@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 from sklearn.utils import class_weight
 
 import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D
+
+from classification_models.tfkeras import Classifiers
 
 
 def plot_accuracy(args, history):
@@ -90,10 +92,21 @@ def model_NASNet(args):
     return model
 
 
+def model_test(args):
+    NASNetLarge, _ = Classifiers.get('nasnetlarge')
+
+    # build model
+    base_model = NASNetLarge(input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3), weights='imagenet', include_top=False)
+    x = GlobalAveragePooling2D()(base_model.output)
+    output = Dense(args.num_classes, activation='softmax')(x)
+    model = Model(inputs=[base_model.input], outputs=[output])
+
+    return model
+
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_simple(args)
+    model = model_test(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -106,12 +119,9 @@ def train(args, train_generator, validation_generator):
     # Stop training when a monitored quantity has stopped improving
     earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0)
     # Save the best model
-    file_path = 'model/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    file_path = model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    file_path = 'best_model.hdf5'
     best_model = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, monitor='val_loss')
-    # Save the weights
-    file_path = 'weights/' + model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
-    model_weights = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, save_weights_only=True,
-                                                       monitor='loss', mode='auto', save_freq=1, verbose=0)
 
     # Train model
     history = model.fit_generator(
@@ -121,10 +131,7 @@ def train(args, train_generator, validation_generator):
         validation_data=validation_generator,
         validation_steps=5602 // args.batch_size,
         class_weight=class_weights,
-        callbacks=[earlyStopping, best_model, model_weights]
+        callbacks=[earlyStopping, best_model]
     )
 
-    weight_files = glob.glob(os.path.join(os.getcwd(), 'weights/*'))
-    weight_file = max(weight_files, key=os.path.getctime)  # most recent file
-
-    # plot_accuracy(args, history)
+    plot_accuracy(args, history)
