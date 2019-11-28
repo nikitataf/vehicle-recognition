@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--test', default='./test/', type=str, help='Directory of test data')
     parser.add_argument('--IMG_HEIGHT', default='331', type=int, help='Image height')
     parser.add_argument('--IMG_WIDTH', default='331', type=int, help='Image width')
-    parser.add_argument('--batch_size', default='3', type=int, help='Batch size')
+    parser.add_argument('--batch_size', default='25', type=int, help='Batch size')
     parser.add_argument('--epochs', default='30', type=int, help='Epochs')
     parser.add_argument('--weight_decay', default='1e-4', type=float, help='Weight decay')
 

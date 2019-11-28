@@ -69,17 +69,18 @@ def model_ResNet(args):
 
 
 def model_MobileNet(args):
-    base_model = tf.keras.applications.mobilenet.MobileNet(include_top=False, weights='imagenet', pooling='max')
+    basemodel, _ = Classifiers.get('mobilenetv2')
 
-    model = Sequential()
-    model.add(base_model)
-    model.add(Dense(1024, activation='relu'))
-    model.add(Dense(args.num_classes, activation='softmax'))
+    # build model
+    base_model = basemodel(input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3), weights='imagenet', include_top=False)
+    x = GlobalAveragePooling2D()(base_model.output)
+    output = Dense(args.num_classes, activation='softmax')(x)
+    model = Model(inputs=[base_model.input], outputs=[output])
 
     return model
 
 
-def model_NASNet(args):
+def model_NASNet_keras(args):
     base_model = tf.keras.applications.nasnet.NASNetLarge(include_top=False,
                                                           input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3),
                                                           weights='imagenet', pooling='max')
@@ -92,7 +93,7 @@ def model_NASNet(args):
     return model
 
 
-def model_test(args):
+def model_NASNetLarge(args):
     NASNetLarge, _ = Classifiers.get('nasnetlarge')
 
     # build model
@@ -106,7 +107,7 @@ def model_test(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_test(args)
+    model = model_MobileNet(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
