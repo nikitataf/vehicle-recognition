@@ -9,6 +9,7 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D
 
 from classification_models.tfkeras import Classifiers
+import efficientnet.tfkeras as efn
 
 
 def plot_accuracy(args, history):
@@ -98,6 +99,16 @@ def model_NASNetLarge(args):
 
     # build model
     base_model = NASNetLarge(input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3), weights='imagenet', include_top=False)
+    x = GlobalAveragePooling2D()(base_model.output)
+    output = Dense(args.num_classes, activation='softmax')(x)
+    model = Model(inputs=[base_model.input], outputs=[output])
+
+    return model
+
+def model_EfficientNet(args):
+    base_model = efn.EfficientNetB0(weights='imagenet')
+
+    base_model = base_model(input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3), weights='imagenet', include_top=False)
     x = GlobalAveragePooling2D()(base_model.output)
     output = Dense(args.num_classes, activation='softmax')(x)
     model = Model(inputs=[base_model.input], outputs=[output])
