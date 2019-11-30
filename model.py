@@ -106,19 +106,19 @@ def model_NASNetLarge(args):
     return model
 
 def model_EfficientNet(args):
-    base_model = efn.EfficientNetB0(weights='imagenet')
-
-    base_model = base_model(input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3), weights='imagenet', include_top=False)
-    x = GlobalAveragePooling2D()(base_model.output)
-    output = Dense(args.num_classes, activation='softmax')(x)
-    model = Model(inputs=[base_model.input], outputs=[output])
+    base_model = efn.EfficientNetB7(include_top=False, input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3),
+                                    weights='imagenet', pooling='max')
+    model = Sequential()
+    model.add(base_model)
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
 
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_MobileNet(args)
+    model = model_EfficientNet(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])

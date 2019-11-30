@@ -38,7 +38,7 @@ def generate_submit(test_generator):
     nb_samples = len(filenames)
 
     best_model = tf.keras.models.load_model('best_model.hdf5')
-    predictions = best_model.predict_generator(test_generator, steps=nb_samples)
+    predictions = best_model.predict_generator(test_generator, steps=nb_samples, verbose=1)
     y_classes = predictions.argmax(axis=-1)
     le = LabelEncoder().fit(CLASS_NAMES)
     labels = list(le.inverse_transform(y_classes))
