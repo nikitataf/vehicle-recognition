@@ -111,9 +111,7 @@ def model_EfficientNet(args):
                                     weights='imagenet', pooling='max')
     model = Sequential()
     model.add(base_model)
-    model.add(Dropout(rate=0.8))
     model.add(Dense(512, activation='relu'))
-    model.add(Dropout(rate=0.8))
     model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
