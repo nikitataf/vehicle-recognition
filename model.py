@@ -7,6 +7,7 @@ from sklearn.utils import class_weight
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, Dropout, MaxPooling2D, GlobalAveragePooling2D
+from tensorflow.keras.optimizers import Adam
 
 from classification_models.tfkeras import Classifiers
 import efficientnet.tfkeras as efn
@@ -110,7 +111,9 @@ def model_EfficientNet(args):
                                     weights='imagenet', pooling='max')
     model = Sequential()
     model.add(base_model)
-    model.add(Dense(1024, activation='relu'))
+    model.add(Dropout(0.2))
+    model.add(Dense(512, activation='relu'))
+    model.add(Dropout(0.2))
     model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
@@ -138,10 +141,10 @@ def train(args, train_generator, validation_generator):
     # Train model
     history = model.fit_generator(
         train_generator,
-        steps_per_epoch=22443 // args.batch_size,
+        steps_per_epoch=22429 // args.batch_size,
         epochs=args.epochs,
         validation_data=validation_generator,
-        validation_steps=5602 // args.batch_size,
+        validation_steps=5599 // args.batch_size,
         class_weight=class_weights,
         callbacks=[earlyStopping, best_model]
     )
