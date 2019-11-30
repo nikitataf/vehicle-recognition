@@ -130,9 +130,9 @@ def train(args, train_generator, validation_generator):
                                                       train_generator.classes)
 
     # Stop training when a monitored quantity has stopped improving
-    earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=10, verbose=0)
+    earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='loss', patience=5, verbose=0)
     # Save the best model
-    file_path = model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    file_path = model.name + '.{epoch:02d}-{loss:.2f}-{accuracy:.2f}.hdf5'
     best_model = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=False, monitor='loss')
 
     # Train model
