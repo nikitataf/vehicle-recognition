@@ -119,7 +119,7 @@ def model_EfficientNet(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_EfficientNet(args)
+    model = model_MobileNet(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
@@ -132,7 +132,7 @@ def train(args, train_generator, validation_generator):
     # Stop training when a monitored quantity has stopped improving
     earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0)
     # Save the best model
-    file_path = model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
+    file_path = model.name + '.{epoch:02d}-{val_loss:.2f}.hdf5'
     best_model = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, monitor='val_loss')
 
     # Train model
