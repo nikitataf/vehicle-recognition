@@ -111,9 +111,9 @@ def model_EfficientNet(args):
                                     weights='imagenet', pooling='max')
     model = Sequential()
     model.add(base_model)
-    model.add(Dropout(0.2))
+    model.add(Dropout(rate=0.8))
     model.add(Dense(512, activation='relu'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(rate=0.8))
     model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
@@ -135,7 +135,6 @@ def train(args, train_generator, validation_generator):
     earlyStopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=0)
     # Save the best model
     file_path = model.name + '.{epoch:02d}-{loss:.2f}.hdf5'
-    file_path = 'best_model.hdf5'
     best_model = tf.keras.callbacks.ModelCheckpoint(file_path, save_best_only=True, monitor='val_loss')
 
     # Train model

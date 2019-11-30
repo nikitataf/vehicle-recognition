@@ -41,17 +41,6 @@ def main():
     # Train model
     train(args, train_dataset.train_generator, train_dataset.validation_generator)
 
-    # TEMPORARY HERE
-    from tensorflow.keras.preprocessing.image import ImageDataGenerator
-    from postprocessing import generate_submit
-    # Generator for the test data
-    test_generator = ImageDataGenerator(rescale=1. / 255)
-    test_generator = test_generator.flow_from_directory(args.test, target_size=(args.IMG_HEIGHT, args.IMG_WIDTH),
-                                                        shuffle=False, batch_size=1)
-
-    # Predict values
-    generate_submit(test_generator)
-
 
 if __name__ == "__main__":
     main()
