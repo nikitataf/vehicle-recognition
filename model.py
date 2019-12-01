@@ -106,6 +106,7 @@ def model_NASNetLarge(args):
 
     return model
 
+
 def model_EfficientNet(args):
     base_model = efn.EfficientNetB7(include_top=False, input_shape=(args.IMG_HEIGHT, args.IMG_WIDTH, 3),
                                     weights='imagenet', pooling='max')
@@ -115,6 +116,7 @@ def model_EfficientNet(args):
     model.add(Dense(args.num_classes, activation='softmax'))
 
     return model
+
 
 def train(args, train_generator, validation_generator):
 

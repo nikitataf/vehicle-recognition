@@ -90,6 +90,7 @@ def max_csv(csv_paths):
 
 
 if __name__ == "__main__":
+
     # Replace this with two or more CSV files
 
     average_csv(['./models_prob/Inception-BatchNorm_accuracy=0.883262_probs.csv',
@@ -102,4 +103,4 @@ if __name__ == "__main__":
 
     max_csv(['./models_prob/Inception-BatchNorm_accuracy=0.883262_probs.csv',
              './models_prob/ResNet-50_accuracy=0.882131_probs.csv'
-                      ])
+             ])
