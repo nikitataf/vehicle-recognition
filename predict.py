@@ -14,7 +14,7 @@ __status__ = "Beta test"
 
 
 import argparse
-from postprocessing import generate_submit
+from vehicle.postprocessing import generate_submit
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 

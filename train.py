@@ -14,8 +14,8 @@ __status__ = "Beta test"
 
 
 import argparse
-from dataset import VehicleDataset
-from model import train
+from vehicle.dataset import VehicleDataset
+from vehicle.model import train
 import os
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'  # MacOS issue
