@@ -33,12 +33,12 @@ def load_test_data(folder):
     return X
 
 
-def generate_submit(test_generator):
+def generate_submit(args, test_generator):
 
     filenames = test_generator.filenames
     nb_samples = len(filenames)
 
-    best_model = tf.keras.models.load_model('best_model.hdf5')
+    best_model = tf.keras.models.load_model(args.model + '.hdf5')
     predictions = best_model.predict_generator(test_generator, steps=nb_samples, verbose=1)
     y_classes = predictions.argmax(axis=-1)
     le = LabelEncoder().fit(CLASS_NAMES)
@@ -48,10 +48,10 @@ def generate_submit(test_generator):
     df = pd.DataFrame(data=predictions[1:, 1:],  # values
                  index=predictions[1:, 0],  # 1st column as index
                  columns=predictions[0, 1:])  # 1st row as the column names
-    df.to_csv('submission_probs.csv')
+    df.to_csv(args.model + '_probs.csv')
     print(df.head(10))
 
-    new_submission_path = "submission" + ".csv"
+    new_submission_path = args.model + ".csv"
 
     with open(new_submission_path, "w") as fp:
         fp.write("Id,Category\n")

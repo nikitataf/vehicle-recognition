@@ -21,6 +21,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 def main():
     # Parameters
     parser = argparse.ArgumentParser(description='Vehicle Recognition Competition PREDICT')
+    parser.add_argument('--model', default='InceptionResNetV2', type=str, help='Model name')
     parser.add_argument('--test', default='./test/', type=str, help='Directory of test data')
     parser.add_argument('--IMG_HEIGHT', default='224', type=int, help='Image height')
     parser.add_argument('--IMG_WIDTH', default='224', type=int, help='Image width')
@@ -34,7 +35,7 @@ def main():
                                                         shuffle=False, batch_size=args.batch_size)
 
     # Predict values
-    generate_submit(test_generator)
+    generate_submit(args, test_generator)
 
 
 if __name__ == "__main__":
