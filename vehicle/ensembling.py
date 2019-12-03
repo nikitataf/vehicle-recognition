@@ -1,10 +1,11 @@
 import csv
+import pathlib
 
-sub_files = ['./best_submissions/resnet50_88.csv',
-             './best_submissions/resnext50_90.csv',
-             './best_submissions/wideresnet50_90.csv']
+# Load csv names
+data_dir = pathlib.Path('./best_submissions/')
+sub_files = list(['./best_submissions/' + item.name for item in data_dir.glob('*') if item.name != ".DS_Store"])
 
-sub_weight = [1.5, 2, 2]  # Weights of the individual subs
+sub_weight = [2, 1.5, 1]  # Weights of the individual subs
 
 Hlabel = 'Id'
 Htarget = 'Category'
@@ -23,7 +24,7 @@ for i, file in enumerate( sub_files ):
     sub[i] = sorted(reader, key=lambda d: float(d[Hlabel]))
 
 # output file
-out = open("./best_submissions/_submission_ens.csv", "w", newline='')
+out = open("./ensembled_submission.csv", "w", newline='')
 writer = csv.writer(out)
 writer.writerow([Hlabel,Htarget])
 
