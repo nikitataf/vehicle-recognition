@@ -3,10 +3,12 @@ import os
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 import pathlib
+from kaggle_test.comparison import compare
+from sklearn.model_selection import ParameterGrid
 
 
 # Load classes names
-data_dir = pathlib.Path('C:/Users/Roman/Dropbox/TUT/wolfram/Competition/train')
+data_dir = pathlib.Path('/Users/tafintse/PycharmProjects/vehicle-recognition/train/train/')
 CLASS_NAMES = np.array([item.name for item in data_dir.glob('*') if item.name != ".DS_Store"])
 
 
@@ -105,9 +107,6 @@ def weighted_average_csv(csv_paths, weights):
         df = df.mul(weights.loc[i, :], axis=1)
         df_blend = df_blend.add(df)
 
-    # Divide by the number of files
-    df_blend = df_blend.div(len(csv_paths))
-
     # Save the blend file
     # df_blend.to_csv('blend.csv')
     # print(df_blend.head(10))
@@ -117,17 +116,100 @@ def weighted_average_csv(csv_paths, weights):
     le = LabelEncoder().fit(CLASS_NAMES)
     labels = list(le.inverse_transform(y_classes))
 
-    print(predictions)
-    print(y_classes)
-    print(labels)
-
-    new_submission_path = "blend_submission_avg" + ".csv"
+    new_submission_path = "/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/blend_submission_weight_avg" + ".csv"
 
     with open(new_submission_path, "w") as fp:
         fp.write("Id,Category\n")
         for i, label in enumerate(labels):
             fp.write("%d,%s\n" % (i, label))
     print("Submission made!")
+
+
+def weighted_max_csv(csv_paths, weights):
+    if len(csv_paths) < 2:
+        print("Blending takes two or more csv files!")
+        return
+
+    # Read the first file
+    df_blend = pd.read_csv(csv_paths[0], index_col=0)
+    df_blend = df_blend.mul(weights.loc[0,:], axis=1)
+
+    # Loop over all files and add them
+    for i in range(1, len(csv_paths)):
+        csv_file = csv_paths[i]
+        df = pd.read_csv(csv_file, index_col=0)
+        df = df.mul(weights.loc[i, :], axis=1)
+        df_blend = pd.concat([df_blend, df], axis=1, ignore_index=True)
+
+    predictions = np.array(df_blend)
+    classes = np.tile(CLASS_NAMES, len(csv_paths))
+    y_classes = predictions.argmax(axis=-1)
+    le = LabelEncoder().fit_transform(classes)
+
+    y_classes_new = []
+    for i in y_classes:
+        value = le[i]
+        y_classes_new.append(value)
+
+    y_classes_new = np.array(y_classes_new)
+    le = LabelEncoder().fit(classes)
+
+    labels = list(le.inverse_transform(y_classes_new))
+
+    print(predictions)
+    print(y_classes)
+    print(labels)
+
+    new_submission_path = "/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/blend_submission_weight_max" + ".csv"
+
+    with open(new_submission_path, "w") as fp:
+        fp.write("Id,Category\n")
+        for i, label in enumerate(labels):
+            fp.write("%d,%s\n" % (i, label))
+    print("Submission made!")
+
+
+def grid_search(csv_paths, weights, max_acc):
+    if len(csv_paths) < 2:
+        print("Blending takes two or more csv files!")
+        return
+
+    # Read the first file
+    df_blend = pd.read_csv(csv_paths[0], index_col=0)
+    df_blend = df_blend.mul(weights.loc[0,:], axis=1)
+
+    # Loop over all files and add them
+    for i in range(1, len(csv_paths)):
+        csv_file = csv_paths[i]
+        df = pd.read_csv(csv_file, index_col=0)
+        df = df.mul(weights.loc[i, :], axis=1)
+        df_blend = df_blend.add(df)
+
+    predictions = np.array(df_blend)
+    y_classes = predictions.argmax(axis=-1)
+    le = LabelEncoder().fit(CLASS_NAMES)
+    labels = list(le.inverse_transform(y_classes))
+
+    gt = pd.read_csv('/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/test_labels.csv')['Category']
+    bools = np.equal(gt, labels)
+    diff = np.sum(bools)
+    acc = diff/len(gt)
+
+    if acc > max_acc:
+        max_acc = acc
+        print(max_acc)
+
+        # Save the best weights
+        weights.to_csv('best_weights.csv')
+
+        new_submission_path = "/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/best_submission" + ".csv"
+        with open(new_submission_path, "w") as fp:
+            fp.write("Id,Category\n")
+            for i, label in enumerate(labels):
+                fp.write("%d,%s\n" % (i, label))
+        print("Submission made!")
+
+    return max_acc
 
 
 if __name__ == "__main__":
@@ -140,7 +222,6 @@ if __name__ == "__main__":
     # max_csv(list_probs)
 
     # Weights for individual category
-
     # weights = pd.DataFrame({'Ambulance': [1,1,1,1],
     #                         'Barge': [1,1,1,1],
     #                         'Bicycle': [1,1,1,1],
@@ -179,24 +260,24 @@ if __name__ == "__main__":
     #                         'Van': [0.7198697068403909,0.7211093990755008,0.7060702875399361,0.7147766323024055],
     #                         })
 
-    weights = pd.DataFrame({'Ambulance': [0.7954545454545454,0.7419354838709677,0.8426966292134831,0.7857142857142856],
-                            'Barge': [0.14285714285714285,0.125,0.,0.07692307692307693],
-                            'Bicycle': [0.9133192389006343,0.9525959367945822,0.9340425531914893,0.88],
-                            'Boat': [0.9487369985141159,0.9383259911894273,0.9288307915758897,0.9585889570552147],
-                            'Bus': [0.9020408163265307,0.9240506329113923,0.9016393442622951,0.9399141630901288],
-                            'Car': [0.9404416037187682,0.9425117924528302,0.9416251100029334,0.9166666666666666],
-                            'Cart': [0.875,0.8888888888888888,0.9102564102564102,0.8888888888888888],
-                            'Caterpillar': [0.9913793103448276,0.9912280701754386,0.9824561403508771,0.9827586206896551],
-                            'Helicopter': [0.9723618090452262,0.9672544080604534,0.9767441860465116,0.9606879606879607],
-                            'Limousine': [0.7931034482758621,0.7142857142857143,0.5681818181818182,0.5952380952380952],
-                            'Motorcycle': [0.8485639686684073,0.7822014051522248,0.8392857142857142,0.945859872611465],
-                            'Segway': [0.9014084507042254,0.9076923076923077,0.9538461538461539,0.9411764705882353],
-                            'Snowmobile': [0.9210526315789473,0.9714285714285714,0.875,0.72],
-                            'Tank': [0.9051724137931034,0.8956521739130435,0.9099099099099099,0.896551724137931],
-                            'Taxi': [0.5945945945945946,0.6739130434782609,0.65625,0.8153846153846154],
-                            'Truck': [0.7122708039492243,0.6914446002805049,0.7056338028169014,0.7034383954154728],
-                            'Van': [0.7038216560509554,0.670487106017192,0.6779141104294478,0.7375886524822695],
-                            })
+    # weights = pd.DataFrame({'Ambulance': [0.7954545454545454,0.7419354838709677,0.8426966292134831,0.7857142857142856],
+    #                         'Barge': [0.14285714285714285,0.125,0.,0.07692307692307693],
+    #                         'Bicycle': [0.9133192389006343,0.9525959367945822,0.9340425531914893,0.88],
+    #                         'Boat': [0.9487369985141159,0.9383259911894273,0.9288307915758897,0.9585889570552147],
+    #                         'Bus': [0.9020408163265307,0.9240506329113923,0.9016393442622951,0.9399141630901288],
+    #                         'Car': [0.9404416037187682,0.9425117924528302,0.9416251100029334,0.9166666666666666],
+    #                         'Cart': [0.875,0.8888888888888888,0.9102564102564102,0.8888888888888888],
+    #                         'Caterpillar': [0.9913793103448276,0.9912280701754386,0.9824561403508771,0.9827586206896551],
+    #                         'Helicopter': [0.9723618090452262,0.9672544080604534,0.9767441860465116,0.9606879606879607],
+    #                         'Limousine': [0.7931034482758621,0.7142857142857143,0.5681818181818182,0.5952380952380952],
+    #                         'Motorcycle': [0.8485639686684073,0.7822014051522248,0.8392857142857142,0.945859872611465],
+    #                         'Segway': [0.9014084507042254,0.9076923076923077,0.9538461538461539,0.9411764705882353],
+    #                         'Snowmobile': [0.9210526315789473,0.9714285714285714,0.875,0.72],
+    #                         'Tank': [0.9051724137931034,0.8956521739130435,0.9099099099099099,0.896551724137931],
+    #                         'Taxi': [0.5945945945945946,0.6739130434782609,0.65625,0.8153846153846154],
+    #                         'Truck': [0.7122708039492243,0.6914446002805049,0.7056338028169014,0.7034383954154728],
+    #                         'Van': [0.7038216560509554,0.670487106017192,0.6779141104294478,0.7375886524822695],
+    #                         })
 
     # weights = pd.DataFrame({'Ambulance': [0.7446808510638298,0.7340425531914894,0.7978723404255319,0.8191489361702128],
     #                         'Barge': [0.05,0.05,0.,0.05],
@@ -217,4 +298,57 @@ if __name__ == "__main__":
     #                         'Van': [0.7366666666666667,0.78,0.7366666666666667,0.6933333333333334],
     #                         })
 
-    weighted_average_csv(list_probs, weights)
+    # Exastive search
+    import itertools
+    probs = np.arange(0.05, 2.0, 0.05)
+    probabilities_permutations = []
+    for subset in itertools.permutations(probs, 4):
+        probabilities_permutations.append(list(subset))
+
+    param_grid = {'Ambulance': probabilities_permutations,
+                  'Barge': probabilities_permutations,
+                  'Bicycle': probabilities_permutations,
+                  'Boat': probabilities_permutations,
+                  'Bus': probabilities_permutations,
+                  'Car': probabilities_permutations,
+                  'Cart': probabilities_permutations,
+                  'Caterpillar': probabilities_permutations,
+                  'Helicopter': probabilities_permutations,
+                  'Limousine': probabilities_permutations,
+                  'Motorcycle': probabilities_permutations,
+                  'Segway': probabilities_permutations,
+                  'Snowmobile': probabilities_permutations,
+                  'Tank': probabilities_permutations,
+                  'Taxi': probabilities_permutations,
+                  'Truck': probabilities_permutations,
+                  'Van': probabilities_permutations
+                  }
+
+    grid = ParameterGrid(param_grid)
+
+    max_acc = 0
+    for params in grid:
+
+        weights = pd.DataFrame({'Ambulance': params['Ambulance'],
+                                'Barge': params['Barge'],
+                                'Bicycle': params['Bicycle'],
+                                'Boat': params['Boat'],
+                                'Bus': params['Bus'],
+                                'Car': params['Car'],
+                                'Cart': params['Cart'],
+                                'Caterpillar': params['Caterpillar'],
+                                'Helicopter': params['Helicopter'],
+                                'Limousine': params['Limousine'],
+                                'Motorcycle': params['Motorcycle'],
+                                'Segway': params['Segway'],
+                                'Snowmobile': params['Snowmobile'],
+                                'Tank': params['Tank'],
+                                'Taxi': params['Taxi'],
+                                'Truck': params['Truck'],
+                                'Van': params['Van']
+                                })
+        max_acc = grid_search(list_probs, weights, max_acc)
+
+
+    # weighted_average_csv(list_probs, weights)
+    # compare('/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/blend_submission_weight_avg.csv')
