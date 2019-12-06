@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 import pathlib
 from kaggle_test.comparison import compare
-from sklearn.model_selection import ParameterGrid
 
 
 # Load classes names
@@ -169,49 +168,6 @@ def weighted_max_csv(csv_paths, weights):
     print("Submission made!")
 
 
-def grid_search(csv_paths, weights, max_acc):
-    if len(csv_paths) < 2:
-        print("Blending takes two or more csv files!")
-        return
-
-    # Read the first file
-    df_blend = pd.read_csv(csv_paths[0], index_col=0)
-    df_blend = df_blend.mul(weights.loc[0,:], axis=1)
-
-    # Loop over all files and add them
-    for i in range(1, len(csv_paths)):
-        csv_file = csv_paths[i]
-        df = pd.read_csv(csv_file, index_col=0)
-        df = df.mul(weights.loc[i, :], axis=1)
-        df_blend = df_blend.add(df)
-
-    predictions = np.array(df_blend)
-    y_classes = predictions.argmax(axis=-1)
-    le = LabelEncoder().fit(CLASS_NAMES)
-    labels = list(le.inverse_transform(y_classes))
-
-    gt = pd.read_csv('/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/test_labels.csv')['Category']
-    bools = np.equal(gt, labels)
-    diff = np.sum(bools)
-    acc = diff/len(gt)
-
-    if acc > max_acc:
-        max_acc = acc
-        print(max_acc)
-
-        # Save the best weights
-        weights.to_csv('best_weights.csv')
-
-        new_submission_path = "/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/best_submission" + ".csv"
-        with open(new_submission_path, "w") as fp:
-            fp.write("Id,Category\n")
-            for i, label in enumerate(labels):
-                fp.write("%d,%s\n" % (i, label))
-        print("Submission made!")
-
-    return max_acc
-
-
 if __name__ == "__main__":
 
     # Load csv names
@@ -298,57 +254,5 @@ if __name__ == "__main__":
     #                         'Van': [0.7366666666666667,0.78,0.7366666666666667,0.6933333333333334],
     #                         })
 
-    # Exastive search
-    import itertools
-    probs = np.arange(0.05, 2.0, 0.05)
-    probabilities_permutations = []
-    for subset in itertools.permutations(probs, 4):
-        probabilities_permutations.append(list(subset))
-
-    param_grid = {'Ambulance': probabilities_permutations,
-                  'Barge': probabilities_permutations,
-                  'Bicycle': probabilities_permutations,
-                  'Boat': probabilities_permutations,
-                  'Bus': probabilities_permutations,
-                  'Car': probabilities_permutations,
-                  'Cart': probabilities_permutations,
-                  'Caterpillar': probabilities_permutations,
-                  'Helicopter': probabilities_permutations,
-                  'Limousine': probabilities_permutations,
-                  'Motorcycle': probabilities_permutations,
-                  'Segway': probabilities_permutations,
-                  'Snowmobile': probabilities_permutations,
-                  'Tank': probabilities_permutations,
-                  'Taxi': probabilities_permutations,
-                  'Truck': probabilities_permutations,
-                  'Van': probabilities_permutations
-                  }
-
-    grid = ParameterGrid(param_grid)
-
-    max_acc = 0
-    for params in grid:
-
-        weights = pd.DataFrame({'Ambulance': params['Ambulance'],
-                                'Barge': params['Barge'],
-                                'Bicycle': params['Bicycle'],
-                                'Boat': params['Boat'],
-                                'Bus': params['Bus'],
-                                'Car': params['Car'],
-                                'Cart': params['Cart'],
-                                'Caterpillar': params['Caterpillar'],
-                                'Helicopter': params['Helicopter'],
-                                'Limousine': params['Limousine'],
-                                'Motorcycle': params['Motorcycle'],
-                                'Segway': params['Segway'],
-                                'Snowmobile': params['Snowmobile'],
-                                'Tank': params['Tank'],
-                                'Taxi': params['Taxi'],
-                                'Truck': params['Truck'],
-                                'Van': params['Van']
-                                })
-        max_acc = grid_search(list_probs, weights, max_acc)
-
-
-    # weighted_average_csv(list_probs, weights)
-    # compare('/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/blend_submission_weight_avg.csv')
+    weighted_average_csv(list_probs, weights)
+    compare('/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/blend_submission_weight_avg.csv')
