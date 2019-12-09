@@ -254,5 +254,25 @@ if __name__ == "__main__":
     #                         'Van': [0.7366666666666667,0.78,0.7366666666666667,0.6933333333333334],
     #                         })
 
+    weights = pd.DataFrame({'Ambulance': [0.9, 0.3, 0.8, 0.8],
+                            'Barge': [0.0, 0.2, 0.3, 0.0],
+                            'Bicycle': [0.2, 0.4, 0.9, 0.7],
+                            'Boat': [0.3, 0.4, 0.9, 0.9],
+                            'Bus': [0.5, 0.9, 0.0, 0.6],
+                            'Car': [1.0, 0.9, 0.7, 0.1],
+                            'Cart': [1.0, 0.9, 0.9, 0.9],
+                            'Caterpillar': [0.7,  0.5, 0.2, 0.0],
+                            'Helicopter': [0.3, 0.2, 0.3, 0.4],
+                            'Limousine': [0.5, 0.9, 0.3, 0.9],
+                            'Motorcycle': [0.7, 0.2, 0.2, 0.2],
+                            'Segway': [0.5, 0.0, 0.2, 0.9],
+                            'Snowmobile': [0.0, 0.2, 0.4, 0.8],
+                            'Tank': [0.3,  0.5, 0.6, 0.7],
+                            'Taxi': [0.2, 0.2, 0.5, 0.3],
+                            'Truck': [0.7, 0.0, 0.6, 0.9],
+                            'Van': [0.7, 0.7, 0.3, 0.7],
+                            })
+
+
     weighted_average_csv(list_probs, weights)
     compare('/Users/tafintse/PycharmProjects/vehicle-recognition/kaggle_test/blend_submission_weight_avg.csv')

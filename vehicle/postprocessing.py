@@ -45,11 +45,19 @@ def generate_submit(args, test_generator):
     labels = list(le.inverse_transform(y_classes))
 
     # Save the probabilities as a .csv file
-    df = pd.DataFrame(data=predictions[1:, 1:],  # values
-                 index=predictions[1:, 0],  # 1st column as index
-                 columns=predictions[0, 1:])  # 1st row as the column names
-    df.to_csv(args.model + '_probs.csv')
-    print(df.head(10))
+    # df = pd.DataFrame(data=predictions[1:, 1:],  # values
+    #              index=predictions[1:, 0],  # 1st column as index
+    #              columns=predictions[0, 1:])  # 1st row as the column names
+    # df.to_csv(args.model + '_probs.csv')
+    # print(df.head(10))
+    csv = 'Id, Ambulance, Barge, Bicycle, Boat, Bus, Car, Cart, Caterpillar, Helicopter, Limousine, Motorcycle,' \
+          'Segway, Snowmobile, Tank, Taxi, Truck, Van\n'
+    for n, row in enumerate(predictions):
+        csv += str(n)
+        for col in row:
+            csv += ',' + str(col)
+        csv += '\n'
+    open(args.model + '_probs.csv', 'w+').write(csv)
 
     new_submission_path = args.model + ".csv"
 
