@@ -121,7 +121,7 @@ def model_EfficientNet(args):
 def train(args, train_generator, validation_generator):
 
     # Construct a model
-    model = model_MobileNet(args)
+    model = model_ResNet(args)
 
     # Compile the model
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])

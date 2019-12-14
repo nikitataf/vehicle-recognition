@@ -10,7 +10,7 @@ __copyright__ = "Copyright 2019"
 __license__ = "All rights reserved"
 __maintainer__ = "Nikita Tafintsev"
 __email__ = "nikita@tafintsev.tech"
-__status__ = "Beta test"
+__status__ = "Final version"
 
 
 import argparse
