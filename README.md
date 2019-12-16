@@ -6,7 +6,7 @@ This repo contains code for training models and predicting vehicle classes.
 # Run training
 Download competition's dataset https://www.kaggle.com/c/vehicle/data
 
-Next, for example, call: `python train.py --batch_size 50 -epochs 15`
+Next, for example, call: `python train.py --batch_size 50 --epochs 15`
 
 # Run prediction
 Call `python predict.py`
